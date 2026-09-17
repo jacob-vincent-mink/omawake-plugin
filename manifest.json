@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "jacob.omawake",
+  "name": "Omawake",
+  "version": "1.0.0",
+  "author": "Jacob Mink",
+  "license": "MIT",
+  "description": "Omawake wake-word daemon controls in the Omarchy bar.",
+  "kinds": ["bar-widget"],
+  "entryPoints": {
+    "barWidget": "Panel.qml"
+  },
+  "barWidget": {
+    "displayName": "Omawake",
+    "description": "Control the Omawake wake-word daemon and browse wake words.",
+    "category": "Audio",
+    "aliases": ["wake", "omawake"],
+    "allowMultiple": false,
+    "defaultSection": "right"
+  }
+}
