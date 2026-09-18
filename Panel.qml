@@ -330,7 +330,7 @@ Panel {
               }
               Text {
                 width: parent.width
-                text: "Install it with:  omarchy install omawake"
+                text: "Install it with:  pacman -S omawake-bin"
                 textFormat: Text.PlainText
                 color: root.dim
                 font.family: root.fontFamily
