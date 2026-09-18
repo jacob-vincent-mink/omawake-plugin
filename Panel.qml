@@ -36,7 +36,6 @@ Panel {
 
   onOpenedChanged: {
     if (opened) {
-      checkBinary()
       refreshTimer.start()
       Qt.callLater(function() { keyCatcher.forceActiveFocus() })
     } else {
@@ -44,6 +43,8 @@ Panel {
       actionError = ""
     }
   }
+
+  Component.onCompleted: checkBinary()
 
   function checkBinary() {
     checking = true
@@ -195,6 +196,21 @@ Panel {
     id: launchProc
     command: []
     running: false
+  }
+
+  Timer {
+    id: bgRefreshTimer
+    interval: 10000
+    repeat: true
+    running: true
+    triggeredOnStart: true
+    onTriggered: {
+      if (binaryFound) {
+        refreshStatus()
+      } else if (!checking) {
+        checkBinary()
+      }
+    }
   }
 
   Timer {
