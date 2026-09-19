@@ -83,8 +83,11 @@ belong to Omawake itself and are not performed by this widget.
 ## Checks
 
 ```bash
-node --test tests/
+node --test tests/*.test.cjs
 ```
+
+The runner is given a file glob rather than the directory, because current Node
+reports the directory itself as a single failing test.
 
 Covers the status and wake-word parsing, the live and paused states, the
 service-present check, and the backend and model display. Node is needed only
