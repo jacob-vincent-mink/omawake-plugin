@@ -535,7 +535,7 @@ Panel {
                     }
 
                     PanelActionButton {
-                      iconText: "\uf2ed"
+                      iconText: "\uf1f8"
                       tooltipText: "Remove"
                       foreground: root.urgent
                       hoverColor: root.urgent
