@@ -104,7 +104,7 @@ Panel {
 
   Process {
     id: binaryCheck
-    command: ["sh", "-c", "if [ -x \"$HOME/.local/bin/omawake\" ]; then printf '%s\\n' \"$HOME/.local/bin/omawake\"; else command -v omawake; fi"]
+    command: ["sh", "-c", "command -v omawake"]
     running: false
     stdout: StdioCollector {
       waitForEnd: true
@@ -413,7 +413,7 @@ Panel {
 
             Button {
               visible: !unitUsesBinary
-              text: "Set up RC service"
+              text: "Set up service"
               enabled: !actionBusy
               foreground: root.foreground
               fontFamily: root.fontFamily
