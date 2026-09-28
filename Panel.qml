@@ -19,6 +19,8 @@ Panel {
   readonly property string fontFamily: bar ? bar.fontFamily : Style.font.family
 
   property bool binaryFound: false
+  property string binaryPath: ""
+  property bool unitUsesBinary: false
   property bool checking: false
   property bool unitInstalled: false
   property var statusData: null
@@ -54,6 +56,7 @@ Panel {
   function checkUnit() {
     if (!binaryFound) return
     unitCheck.running = true
+    unitExecCheck.running = true
   }
 
   function refreshStatus() {
@@ -69,7 +72,7 @@ Panel {
   function doAction(args) {
     actionBusy = true
     actionError = ""
-    actionProc.command = ["omawake"].concat(args)
+    actionProc.command = [binaryPath].concat(args)
     actionProc.running = true
   }
 
@@ -81,7 +84,7 @@ Panel {
   }
 
   function launchTerminal(args) {
-    launchProc.command = ["omarchy", "launch", "terminal"].concat(args)
+    launchProc.command = ["omarchy", "launch", "terminal", binaryPath].concat(args)
     launchProc.running = true
     root.close()
   }
@@ -90,7 +93,7 @@ Panel {
     if (!id) return
     actionBusy = true
     actionError = ""
-    rmWwProc.command = ["omawake", "wake-word", "remove", id]
+    rmWwProc.command = [binaryPath, "wake-word", "remove", id]
     rmWwProc.running = true
   }
 
@@ -103,8 +106,12 @@ Panel {
     id: binaryCheck
     command: ["sh", "-c", "command -v omawake"]
     running: false
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: binaryPath = String(text || "").trim()
+    }
     onExited: function(code) {
-      binaryFound = (code === 0)
+      binaryFound = (code === 0 && binaryPath !== "")
       checking = false
       if (binaryFound) {
         checkUnit()
@@ -130,8 +137,21 @@ Panel {
   }
 
   Process {
+    id: unitExecCheck
+    command: ["systemctl", "--user", "show", "omawake", "--property=ExecStart", "--value"]
+    running: false
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: unitUsesBinary = root.binaryPath !== "" && String(text || "").indexOf("path=" + root.binaryPath + " ") !== -1
+    }
+    onExited: function(code) {
+      if (code !== 0) unitUsesBinary = false
+    }
+  }
+
+  Process {
     id: statusProc
-    command: ["omawake", "status", "--json"]
+    command: [root.binaryPath, "status", "--json"]
     running: false
     stdout: StdioCollector {
       waitForEnd: true
@@ -146,7 +166,7 @@ Panel {
 
   Process {
     id: wakeWordProc
-    command: ["omawake", "wake-word", "list", "--json"]
+    command: [root.binaryPath, "wake-word", "list", "--json"]
     running: false
     stdout: StdioCollector {
       waitForEnd: true
@@ -392,16 +412,16 @@ Panel {
             spacing: Style.space(6)
 
             Button {
-              visible: !unitInstalled
-              text: "Install daemon"
+              visible: !unitUsesBinary
+              text: "Set up service"
               enabled: !actionBusy
               foreground: root.foreground
               fontFamily: root.fontFamily
               fontSize: Style.font.bodySmall
-              onClicked: launchTerminal(["omawake", "setup", "systemd"])
+              onClicked: launchTerminal(["setup", "systemd"])
             }
             Button {
-              visible: unitInstalled && !daemonRunning && !daemonPaused
+              visible: unitUsesBinary && !daemonRunning && !daemonPaused
               text: "Start"
               enabled: !actionBusy
               foreground: root.foreground
@@ -428,7 +448,7 @@ Panel {
               onClicked: doAction(["resume"])
             }
             Button {
-              visible: (daemonRunning || daemonPaused) && unitInstalled
+              visible: (daemonRunning || daemonPaused) && unitUsesBinary
               text: "Stop"
               enabled: !actionBusy
               foreground: root.foreground
@@ -565,7 +585,7 @@ Panel {
               foreground: root.foreground
               fontFamily: root.fontFamily
               fontSize: Style.font.body
-              onClicked: launchTerminal(["omawake", "word", "onboard"])
+              onClicked: launchTerminal(["word", "onboard"])
             }
             Button {
               width: parent.width
@@ -573,7 +593,7 @@ Panel {
               foreground: root.foreground
               fontFamily: root.fontFamily
               fontSize: Style.font.body
-              onClicked: launchTerminal(["omawake", "setup"])
+              onClicked: launchTerminal(["setup"])
             }
           }
         }
