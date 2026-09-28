@@ -14,7 +14,7 @@ list marks the word the daemon reports as active.
 ## Requirements
 
 - Omarchy Quattro with shell plugin support
-- The `omawake-bin` package on `PATH`, because the widget drives the `omawake` command line
+- An installed `omawake` executable. The widget prefers `~/.local/bin/omawake` (including RC installs) and falls back to `PATH`.
 - A systemd user session, because the daemon runs as the `omawake` user service
 
 ## Install
@@ -32,6 +32,12 @@ control: it opens a terminal running `omawake setup systemd`, which installs and
 enables the user service. **Train a wake word** opens a terminal running
 `omawake word onboard`. When the binary is missing the panel reports
 **Not installed** and prints the install command instead of failing.
+
+The service control checks systemd’s effective `ExecStart`. If a packaged unit
+points at `/usr/bin/omawake` while the RC executable is in `~/.local/bin`,
+**Set up RC service** runs the selected executable’s `setup systemd` command
+to create a user unit. **Start** appears only when the service points at that
+selected executable.
 
 ## Remove
 
